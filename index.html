@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Who Want to Be a Brilliant — Kuis Pengetahuan Umum</title>
+  <meta name="description" content="Game kuis pengetahuan umum tingkat SD. Jawab 15 soal, gunakan 3 bantuan, dan raih hadiah tertinggi!">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,800;9..144,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="layar.js"></script>
+</head>
+<body>
+
+  <div id="bingkai" class="bingkai">
+
+  <!-- Latar panggung (dekoratif) -->
+  <div class="stage" aria-hidden="true">
+    <div class="stars"></div>
+    <span class="beam beam-left"></span>
+    <span class="beam beam-right"></span>
+    <div class="floor-glow"></div>
+  </div>
+
+  <!-- Tombol layar penuh dan suara -->
+  <div class="toolbar">
+    <button id="fsBtn" class="fs-btn" type="button" data-fs aria-label="Layar penuh">
+      <span class="fs-on">Layar penuh</span><span class="fs-off">Keluar layar penuh</span>
+    </button>
+    <button id="soundBtn" class="sound-btn" type="button" aria-pressed="true">Suara: Hidup</button>
+  </div>
+
+  <!-- Banner pengumuman (titik aman, dll.) -->
+  <div id="banner" class="banner" role="status" aria-live="polite" hidden></div>
+
+  <main>
+
+    <!-- ===================== HALAMAN PEMBUKA ===================== -->
+    <section id="screen-intro" class="screen active" aria-labelledby="gameTitle">
+      <div class="intro-inner">
+        <div class="emblem" aria-hidden="true">
+          <span class="emblem-ring"></span>
+          <span class="emblem-diamond"><span class="emblem-star">&#9733;</span></span>
+        </div>
+
+        <h1 id="gameTitle" class="title">
+          <span class="title-top">WHO WANT TO BE A</span>
+          <span class="title-main">BRILLIANT</span>
+        </h1>
+        <p class="subtitle">Uji Pengetahuanmu, Raih Hadiah Tertinggi!</p>
+
+        <div class="ornament" aria-hidden="true"><span></span></div>
+
+        <p class="intro-info">
+          Pilih topik soal, lalu jawab <strong>15 soal</strong> yang makin sulit untuk meraih hadiah
+          <strong class="gold">Rp1.000.000.000</strong>.
+          Kamu punya <strong>tiga bantuan</strong> yang bisa dipakai selama permainan:
+          50:50, Phone a Friend, dan Ask the Audience.
+        </p>
+
+        <button id="topicBtn" class="topic-btn" type="button" aria-haspopup="dialog" aria-controls="paketModal">
+          <span id="topicIkon" class="topic-ikon" aria-hidden="true"></span>
+          <span class="topic-text">
+            <span class="topic-label">Topik soal</span>
+            <span id="topicName" class="topic-name"></span>
+          </span>
+          <span class="topic-change">Ganti</span>
+        </button>
+
+        <div class="intro-actions">
+          <button id="startBtn" class="btn btn-primary" type="button">MULAI BERMAIN</button>
+          <button id="howtoBtn" class="btn btn-ghost" type="button">CARA BERMAIN</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HALAMAN SELEKSI PESERTA ===================== -->
+    <section id="screen-select" class="screen" aria-labelledby="selTitle">
+      <div class="select-wrap">
+        <p id="selKicker" class="sel-kicker">BABAK SELEKSI</p>
+        <h2 id="selTitle" class="sel-title">Siapa yang naik ke panggung?</h2>
+        <p id="selInfo" class="sel-info">Ada 10 peserta, tetapi hanya 1 yang boleh naik ke panggung. Jawab pertanyaan tentang sekolah ini dengan benar!</p>
+
+        <ol id="seats" class="seats" aria-label="Kursi peserta"></ol>
+
+        <div id="selQuestionCard" class="question-card">
+          <p id="selQuestionText" class="question-text"></p>
+        </div>
+
+        <div id="selAnswers" class="answers" role="group" aria-label="Pilihan jawaban seleksi"></div>
+
+        <div id="selResult" class="result-panel" role="status" aria-live="polite" hidden>
+          <p id="selResultStatus" class="result-status"></p>
+          <p id="selResultExplain" class="result-explain"></p>
+        </div>
+
+        <div class="actions">
+          <button id="selLockBtn" class="btn btn-primary" type="button" disabled>KUNCI JAWABAN</button>
+          <button id="selNextBtn" class="btn btn-primary" type="button" hidden>NAIK KE PANGGUNG</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HALAMAN PERMAINAN ===================== -->
+    <section id="screen-game" class="screen" aria-label="Permainan">
+      <div class="game-layout">
+
+        <div class="play-area">
+          <header class="hud">
+            <div class="hud-block">
+              <span class="hud-label">Nomor soal</span>
+              <strong id="qCounter" class="hud-value">SOAL 1 DARI 15</strong>
+            </div>
+            <div class="hud-block">
+              <span class="hud-label">Hadiah soal ini</span>
+              <strong id="qPrize" class="hud-value gold">Rp100.000</strong>
+            </div>
+            <div class="hud-block">
+              <span class="hud-label">Hadiah aman</span>
+              <strong id="safePrize" class="hud-value">Rp0</strong>
+            </div>
+          </header>
+
+          <div class="lifelines" role="group" aria-label="Bantuan">
+            <button class="lifeline" id="ll-fifty" data-life="fifty" type="button">
+              <span class="ll-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>
+              </span>
+              <span class="ll-name">50:50</span>
+              <span class="ll-used">TERPAKAI</span>
+            </button>
+            <button class="lifeline" id="ll-phone" data-life="phone" type="button">
+              <span class="ll-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.58a1 1 0 0 1-.25 1z"/></svg>
+              </span>
+              <span class="ll-name">PHONE A FRIEND</span>
+              <span class="ll-used">TERPAKAI</span>
+            </button>
+            <button class="lifeline" id="ll-audience" data-life="audience" type="button">
+              <span class="ll-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="4" y="11" width="4" height="9" rx="1" fill="currentColor"/><rect x="10" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="16" y="8" width="4" height="12" rx="1" fill="currentColor"/></svg>
+              </span>
+              <span class="ll-name">ASK THE AUDIENCE</span>
+              <span class="ll-used">TERPAKAI</span>
+            </button>
+          </div>
+
+          <div id="questionCard" class="question-card">
+            <p id="questionText" class="question-text"></p>
+          </div>
+
+          <div id="answers" class="answers" role="group" aria-label="Pilihan jawaban"></div>
+
+          <div id="resultPanel" class="result-panel" role="status" aria-live="polite" hidden>
+            <p id="resultStatus" class="result-status"></p>
+            <p id="resultExplain" class="result-explain"></p>
+          </div>
+
+          <div class="actions">
+            <button id="lockBtn" class="btn btn-primary" type="button" disabled>KUNCI JAWABAN</button>
+            <button id="nextBtn" class="btn btn-primary" type="button" hidden>LANJUTKAN</button>
+          </div>
+        </div>
+
+        <aside id="ladderPanel" class="ladder-panel" aria-label="Tangga hadiah">
+          <button id="ladderToggle" class="ladder-toggle" type="button" aria-expanded="false" aria-controls="ladder">
+            <span class="ladder-toggle-title">Tangga hadiah</span>
+            <span id="ladderSummary" class="ladder-toggle-sum"></span>
+          </button>
+          <h2 class="ladder-heading">Tangga Hadiah</h2>
+          <ol id="ladder" class="ladder"></ol>
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- ===================== HALAMAN HASIL ===================== -->
+    <section id="screen-result" class="screen" aria-live="polite">
+      <div class="result-card" id="resultCard">
+        <p id="endKicker" class="end-kicker"></p>
+        <h2 id="endTitle" class="end-title"></h2>
+        <p class="end-label">Hadiah akhir</p>
+        <p id="endPrize" class="end-prize"></p>
+
+        <div id="endDetail" class="end-detail">
+          <p id="endStopped" class="end-stopped"></p>
+          <p id="endQuestion" class="end-question"></p>
+          <p id="endCorrect" class="end-correct"></p>
+          <p id="endExplain" class="end-explain"></p>
+        </div>
+
+        <p id="endMessage" class="end-message"></p>
+        <button id="playAgainBtn" class="btn btn-primary" type="button">MAIN LAGI</button>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="confetti" class="confetti" aria-hidden="true"></div>
+
+  <!-- ===================== MODAL: CARA BERMAIN ===================== -->
+  <div id="howtoModal" class="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="howtoTitle">
+      <h2 id="howtoTitle" class="modal-title">Cara Bermain</h2>
+      <ol class="howto-list">
+        <li>Sebelum naik panggung, kamu harus terpilih dulu dari 10 peserta. Jawab satu pertanyaan tentang sekolah dengan benar, maka kamu terpilih.</li>
+        <li>Baca soal, lalu pilih satu jawaban: A, B, C, atau D. Kamu masih boleh mengganti pilihan.</li>
+        <li>Tekan <strong>KUNCI JAWABAN</strong> kalau sudah yakin. Setelah dikunci, jawaban tidak bisa diubah.</li>
+        <li>Jawab benar untuk naik ke soal berikutnya dan naik satu tangga hadiah.</li>
+        <li>Ada dua <strong>titik aman</strong>: soal ke-5 (Rp1.000.000) dan soal ke-10 (Rp32.000.000). Setelah kamu menjawab soal itu dengan benar, hadiahnya tidak akan hilang. Di titik aman kamu boleh berhenti dan membawa pulang hadiahnya, atau lanjut bermain.</li>
+        <li>Kalau jawabanmu salah, permainan selesai dan kamu membawa pulang hadiah titik aman terakhir.</li>
+        <li>Jawab 15 soal dengan benar untuk meraih <strong>Rp1.000.000.000</strong>!</li>
+      </ol>
+      <h3 class="modal-sub">Tiga bantuan (masing-masing sekali pakai)</h3>
+      <ul class="howto-help">
+        <li><strong>50:50</strong> menghilangkan dua jawaban yang salah.</li>
+        <li><strong>Phone a Friend</strong> meminta saran Ayah, Ibu, atau Teman. Saran mereka tidak selalu benar.</li>
+        <li><strong>Ask the Audience</strong> menampilkan hasil suara penonton. Penonton juga bisa keliru.</li>
+      </ul>
+      <button class="btn btn-primary" type="button" data-close="howtoModal">MENGERTI</button>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: PILIH TOPIK SOAL ===================== -->
+  <div id="paketModal" class="modal" hidden>
+    <div class="modal-box paket-box" role="dialog" aria-modal="true" aria-labelledby="paketTitle">
+      <h2 id="paketTitle" class="modal-title">Pilih Topik Soal</h2>
+      <p class="modal-text">Kamu mau ditanya tentang apa? Soal akan naik dari mudah sampai sangat sulit.</p>
+      <div id="paketGrid" class="paket-grid"></div>
+      <button class="btn btn-ghost" type="button" data-close="paketModal">TUTUP</button>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: TITIK AMAN ===================== -->
+  <div id="safeModal" class="modal" hidden>
+    <div class="modal-box safe-box" role="dialog" aria-modal="true" aria-labelledby="safeTitle">
+      <p class="safe-kicker">TITIK AMAN</p>
+      <h2 id="safeTitle" class="modal-title">Selamat! Kamu mencapai titik aman</h2>
+      <p id="safePrizeBig" class="safe-prize"></p>
+      <p id="safeText" class="modal-text"></p>
+      <button id="safeContinueBtn" class="btn btn-primary" type="button">LANJUTKAN</button>
+      <button id="safeStopBtn" class="btn btn-ghost" type="button">BERHENTI DAN AMBIL HADIAH</button>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: PHONE A FRIEND ===================== -->
+  <div id="phoneModal" class="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="phoneTitle">
+      <h2 id="phoneTitle" class="modal-title">Phone a Friend</h2>
+
+      <div id="phoneChoose">
+        <p class="modal-text">Siapa yang ingin kamu telepon?</p>
+        <div class="friend-grid">
+          <button class="friend-btn" type="button" data-friend="ayah">
+            <span class="friend-avatar">A</span>
+            <span class="friend-name">Ayah</span>
+            <span class="friend-desc">Telepon Ayah Kamu</span>
+          </button>
+          <button class="friend-btn" type="button" data-friend="ibu">
+            <span class="friend-avatar">I</span>
+            <span class="friend-name">Ibu</span>
+            <span class="friend-desc">Telepon Ibu Kamu</span>
+          </button>
+          <button class="friend-btn" type="button" data-friend="teman">
+            <span class="friend-avatar">T</span>
+            <span class="friend-name">Teman</span>
+            <span class="friend-desc">Telepon Temen Kamu</span>
+          </button>
+        </div>
+        <button class="btn btn-ghost" type="button" data-close="phoneModal">BATAL</button>
+      </div>
+
+      <div id="phoneCall" hidden>
+        <div class="call-head">
+          <span id="callAvatar" class="friend-avatar big">A</span>
+          <div>
+            <p id="callName" class="call-name">Ayah</p>
+            <p id="callStatus" class="call-status">Menghubungi...</p>
+          </div>
+        </div>
+        <p id="callBubble" class="call-bubble" hidden></p>
+        <button id="phoneCloseBtn" class="btn btn-primary" type="button" hidden>TUTUP TELEPON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: ASK THE AUDIENCE ===================== -->
+  <div id="audienceModal" class="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="audTitle">
+      <h2 id="audTitle" class="modal-title">Suara Penonton</h2>
+      <p class="modal-text">Penonton sudah memberikan suara. Pilihan akhir tetap ada di tanganmu.</p>
+      <div id="audienceBars" class="aud-bars"></div>
+      <button id="audienceCloseBtn" class="btn btn-primary" type="button">KEMBALI KE SOAL</button>
+    </div>
+  </div>
+
+  </div><!-- /bingkai -->
+
+  <!-- Pemberitahuan di luar bingkai -->
+  <div id="putar" class="putar" role="alert">
+    <div class="putar-card">
+      <span class="putar-hp" aria-hidden="true"></span>
+      <h2 class="putar-title">Putar HP kamu</h2>
+      <p>Game ini dimainkan dalam posisi mendatar (landscape). Putar HP kamu, lalu aktifkan layar penuh.</p>
+    </div>
+  </div>
+
+  <div id="fsPrompt" class="fs-prompt" role="dialog" aria-modal="true" aria-labelledby="fsTitle" hidden>
+    <div class="fs-card">
+      <h2 id="fsTitle" class="fs-title">Mainkan dalam layar penuh</h2>
+      <p>Supaya soal dan tombol terlihat jelas, putar HP ke posisi mendatar (landscape) dan aktifkan layar penuh.</p>
+      <div class="fs-actions">
+        <button class="btn btn-primary" type="button" data-fs>AKTIFKAN LAYAR PENUH</button>
+        <button id="fsSkip" class="btn btn-ghost" type="button">LANJUT TANPA LAYAR PENUH</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- PAKET SOAL: satu baris untuk setiap file di folder soal/.
+       Untuk topik baru, salin soal/_template.js lalu tambahkan barisnya di sini.
+       Baris paket harus berada SEBELUM game.js. -->
+  <script src="soal/pengetahuanumum.js"></script>
+  <script src="soal/pengetahuanumum2.js"></script>
+  <script src="soal/pengetahuandunia.js"></script>
+  <!-- <script src="soal/sains.js"></script> -->
+
+  <script src="game.js" defer></script>
+</body>
+</html>

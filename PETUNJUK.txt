@@ -1,0 +1,18 @@
+LETAKKAN FILE MP3 DI FOLDER INI dengan nama persis seperti di bawah.
+Folder "audio" harus berada di sebelah index.html.
+
+main-theme.mp3   musik menu, dari halaman pembuka sampai klik "Naik ke Panggung" (diulang terus)
+bgm-1.mp3        musik permainan soal 1-5   (diulang terus)
+bgm-2.mp3        musik permainan soal 6-10  (diulang terus)
+bgm-3.mp3        musik permainan soal 11-15 (diulang terus)
+intro-1.mp3      intro sebelum soal 1  (diputar sekali)
+intro-2.mp3      intro sebelum soal 6  (diputar sekali)
+intro-3.mp3      intro sebelum soal 11 (diputar sekali)
+benar.mp3        efek suara jawaban benar (pendek)
+menang.mp3       efek suara menang, saat soal 15 terjawab benar
+
+Catatan:
+- Tidak semua file wajib ada. File yang tidak ada akan diganti suara bawaan game.
+- Jika hanya ada intro-1.mp3, file itu dipakai untuk ketiga intro.
+- Untuk musik yang diulang, pilih potongan yang bisa menyambung mulus (loop).
+- Suara terlalu keras/pelan? Ubah angka di AUDIO_BASE pada game.js (0 sampai 1).
